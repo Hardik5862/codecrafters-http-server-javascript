@@ -9,8 +9,9 @@ const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     const req = data.toString().split("\r\n");
     const path = req[0].split(" ")[1].trim();
+    const method = req[0].split(" ")[0].trim();
 
-    if (path.startsWith("/files/")) {
+    if (path.startsWith("/files/") && method === "GET") {
       const fileName = path.substring(7);
       const dir = process.argv[process.argv.indexOf("--directory") + 1];
 
@@ -31,6 +32,19 @@ const server = net.createServer((socket) => {
           fileData +
           "\r\n"
       );
+    }
+
+    if (path.startsWith("/files/") && method === "POST") {
+      const fileName = path.substring(7);
+      const dir = process.argv[process.argv.indexOf("--directory") + 1];
+
+      const fileData = req[req.indexOf("") + 1];
+
+      fs.writeFileSync(dir + fileName, fileData);
+
+      socket.write("HTTP/1.1 201 OK\r\n\r\n");
+      socket.end();
+      return;
     }
 
     if (path.startsWith("/user-agent")) {
