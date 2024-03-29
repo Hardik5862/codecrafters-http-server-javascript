@@ -9,6 +9,25 @@ const server = net.createServer((socket) => {
     const req = data.toString().split("\r\n");
     const path = req[0].split(" ")[1].trim();
 
+    const headers = {};
+    for (let i = 1; i < req.length; i++) {
+      const [k, v] = req[i].split(": ");
+      headers[k] = v;
+    }
+
+    if (path.startsWith("/user-agent")) {
+      const userAgent = headers["User-Agent"];
+      return socket.write(
+        "HTTP/1.1 200 OK\r\n" +
+          "Content-Type: text/plain\r\n" +
+          "Content-Length: " +
+          userAgent.length +
+          "\r\n\r\n" +
+          userAgent +
+          "\r\n"
+      );
+    }
+
     if (path.startsWith("/echo/")) {
       const val = path.substring(6);
 
