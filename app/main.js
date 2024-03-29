@@ -9,6 +9,20 @@ const server = net.createServer((socket) => {
     const req = data.toString().split("\r\n");
     const path = req[0].split(" ")[1].trim();
 
+    if (path.startsWith("/echo/")) {
+      const val = path.substring(6);
+
+      return socket.write(
+        "HTTP/1.1 200 OK\r\n" +
+          "Content-Type: text/plain\r\n" +
+          "Content-Length: " +
+          val.length +
+          "\r\n\r\n" +
+          val +
+          "\r\n"
+      );
+    }
+
     if (path === "" || path === "/") {
       socket.write("HTTP/1.1 200 OK\r\n\r\n");
     } else {
